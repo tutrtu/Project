@@ -1,0 +1,74 @@
+﻿@model Web.Models.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Register Page";
+}
+
+<div class="content">
+    <h3>Register</h3>
+    @using (Html.BeginForm("Register", "Account", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        // Anti-forgery token for security
+
+        <table>
+            <tbody>
+                <tr>
+                    <td>Email</td>
+                    <td>
+                        <input asp-for="Email" type="email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Password</td>
+                    <td>
+                        <input asp-for="Password" type="password" class="form-control" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Confirm Password</td>
+                    <td>
+                        <input asp-for="ConfirmPassword" type="password" class="form-control" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Name</td>
+                    <td>
+                        <input asp-for="Name" type="text" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Mobile</td>
+                    <td>
+                        <input asp-for="Mobile" type="text" class="form-control" />
+                        <span asp-validation-for="Mobile" class="text-danger"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        @if (ViewBag.Error != null)
+                        {
+                            <span class="alert alert-danger">@ViewBag.Error</span>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="submit" name="register" value="Register" class="btn btn-primary" />
+                    </td>
+                    <td>
+                        <a href="@Url.Action("Index", "Home")" class="btn btn-link">Back to Login</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,24 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+@model Web.Models.QuestionViewModel
+
+<tr>
+    <td class="text-dark">
+        <a href="/questions/view/@Model.QuestionID" class="text-primary">@Model.QuestionName</a>
+        <br />
+        <span class="badge badge-info">@Model.Category.CategoryName</span>
+    </td>
+    <td>
+        @if (HttpContextAccessor?.HttpContext?.Session?.GetInt32("CurrentUserID") != null &&
+        HttpContextAccessor.HttpContext.Session.GetInt32("CurrentUserID") != Model.UserID)
+        {
+            @:by @Model.User.Name
+        }
+        else
+        {
+            @:by you
+        }
+
+    <td>on @Model.QuestionDateAndTime</td>
+</tr>

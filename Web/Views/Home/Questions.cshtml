@@ -1,0 +1,26 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@model List<Web.Models.QuestionViewModel>
+
+@{
+    ViewBag.Title = "Questions";
+}
+
+<div class="row">
+    <div class="col-sm-12">
+        <table class="table">
+            @foreach (var item in Model)
+            {
+                <partial name="Question" model="item" />
+            }
+        </table>
+        @if (HttpContextAccessor.HttpContext.Session.GetString("CurrentUserName") != null)
+        {
+            <a href="/questions/create" class="btn btn-primary">Add Question</a>
+        }
+    </div>
+</div>
+
+<script>
+    $("a[href='/allquestions']").attr("id", "active");
+</script>
