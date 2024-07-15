@@ -2,6 +2,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,17 +13,20 @@ namespace API.Controllers
     public class QuestionsController : ControllerBase
     {
         private readonly QandAContext _context;
-        private readonly IMapper _mapper;
-        public QuestionsController(QandAContext context, IMapper mapper)
+
+        public QuestionsController(QandAContext context)
         {
             _context = context;
-            _mapper = mapper;
+           
         }
 
         [HttpGet]
         public ActionResult<IEnumerable<Question>> Get()
         {
-            return Ok(_context.Questions.ToList());
+            var questions = _context.Questions.ToList();
+                
+
+            return Ok(questions);
         }
 
         [HttpGet("{id:int}")]
@@ -48,9 +52,14 @@ namespace API.Controllers
                 return BadRequest("NewQuestionDto is null");
             }
 
-            var question = _mapper.Map<Question>(newQuestionDto);
-
-            question.QuestionDateAndTime = DateTime.Now; // Optionally set current date/time
+            var question = new Question
+            {
+                QuestionName = newQuestionDto.QuestionName,
+                QuestionDateAndTime = DateTime.Now, // Optionally set current date/time
+                UserId = newQuestionDto.UserID,
+                CategoryId = newQuestionDto.CategoryID
+                // Populate other properties as needed
+            };
 
             _context.Questions.Add(question);
             _context.SaveChanges();
