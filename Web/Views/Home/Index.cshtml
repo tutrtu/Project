@@ -23,7 +23,7 @@
                 Html.RenderPartial("Question", item);
             }
         </table>
-        @if (HttpContextAccessor.HttpContext.Session.GetString("CurrentUserName") != null)
+        @if (HttpContextAccessor.HttpContext.Session.GetString("CurrentUserId") != null)
         {
             <a href="/questions/create" class="btn btn-primary">Add Question</a>
         }

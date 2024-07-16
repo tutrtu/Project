@@ -16,9 +16,18 @@ namespace API.Controllers
 
 
         [HttpGet]
-        public ActionResult<IEnumerable<Category>> Get()
+        public ActionResult<IEnumerable<CategoryDto>> Get()
         {
-            return Ok(_context.Categories.ToList());
+            var categories = _context.Categories
+                .Select(c => new CategoryDto
+                {
+                    CategoryId = c.CategoryId,
+                    CategoryName = c.CategoryName
+                    // You can include other properties as needed
+                })
+                .ToList();
+
+            return Ok(categories);
         }
 
         [HttpPost]

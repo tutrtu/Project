@@ -1,5 +1,51 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model Web.Models.NewQuestionViewModel
+
 @{
+    ViewBag.Title = "Create Question";
 }
+
+<div class="row">
+    <div class="col-sm-12">
+        <h1>Create Question</h1>
+        <form class="needs-validation"  action="/questions/create" method="post">
+
+            <div class="form-row">
+                <div class="form-group col-sm-12">
+                    <label for="txtQuestionName">Question</label>
+                    <textarea class="form-control" id="txtQuestionName" placeholder="Enter question" name="QuestionName" required autofocus></textarea>
+                    <div class="valid-feedback">
+                        Looks good!
+                    </div>
+                    <div class="invalid-feedback">
+                        Please enter a question.
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-sm-6">
+                    <label for="drpCategory">Category</label>
+                    <<select id="categoryID" name="categoryID">
+                        @if (ViewBag.Categories != null)
+                        {
+                            foreach (var category in ViewBag.Categories)
+                            {
+                                <option value="@category.CategoryID">@category.CategoryName</option>
+                            }
+                        }
+                    </select>
+                
+                    
+                    
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add Question</button>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    // Additional scripts can be added here if needed
+</script>

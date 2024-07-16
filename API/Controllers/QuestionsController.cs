@@ -13,17 +13,18 @@ namespace API.Controllers
     public class QuestionsController : ControllerBase
     {
         private readonly QandAContext _context;
+        private readonly IMapper _mapper;
 
-        public QuestionsController(QandAContext context)
+        public QuestionsController(QandAContext context, IMapper mapper)
         {
             _context = context;
-           
+            _mapper = mapper;
         }
 
         [HttpGet]
         public ActionResult<IEnumerable<Question>> Get()
         {
-            var questions = _context.Questions.ToList();
+            var questions = _context.Questions.Include(u => u.User).Include(c => c.Category).ToList();
                 
 
             return Ok(questions);
@@ -52,14 +53,21 @@ namespace API.Controllers
                 return BadRequest("NewQuestionDto is null");
             }
 
-            var question = new Question
+            // Map the DTO to the entity
+            var question = _mapper.Map<Question>(newQuestionDto);
+
+            // Load the related entities based on their IDs
+            question.User = _context.Users.Find(newQuestionDto.UserID);
+            if (question.User == null)
             {
-                QuestionName = newQuestionDto.QuestionName,
-                QuestionDateAndTime = DateTime.Now, // Optionally set current date/time
-                UserId = newQuestionDto.UserID,
-                CategoryId = newQuestionDto.CategoryID
-                // Populate other properties as needed
-            };
+                return NotFound("User not found");
+            }
+
+            question.Category = _context.Categories.Find(newQuestionDto.CategoryID);
+            if (question.Category == null)
+            {
+                return NotFound("Category not found");
+            }
 
             _context.Questions.Add(question);
             _context.SaveChanges();

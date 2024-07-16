@@ -40,7 +40,7 @@ namespace Web.Controllers
 
                 // Set session variable
                 HttpContext.Session.SetInt32("CurrentUserId", user.Id);
-                HttpContext.Session.SetString("CurrentUser", user.Name);
+                
 
                 // Handle successful login, e.g., set session data or cookies
                 return RedirectToAction("Index", "Home");
