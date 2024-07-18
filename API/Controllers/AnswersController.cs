@@ -1,4 +1,5 @@
 ﻿using API.Models;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,9 +10,11 @@ namespace API.Controllers
     public class AnswersController : ControllerBase
     {
         private readonly QandAContext _context;
-        public AnswersController(QandAContext context)
+        private readonly IMapper _mapper;
+        public AnswersController(QandAContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
         [HttpGet]
         public ActionResult<List<AnswerDto>> GetAnswersByQuestionID(int qid)
@@ -28,11 +31,11 @@ namespace API.Controllers
                                   QuestionID = temp.QuestionId,
                                   User = new UserDto
                                   {
-
+                                      UserId = temp.UserId,
                                       Email = temp.User.Email,
                                       Name = temp.User.Name,
                                       Mobile = temp.User.Mobile,
-
+                                      IsAdmin = temp.User.IsAdmin,
                                   }
                               })
                               .ToList();
@@ -84,13 +87,8 @@ namespace API.Controllers
                 return BadRequest("Answer data cannot be null.");
             }
 
-            var answerEntity = new Answer
-            {
-                AnswerText = newAnswerDto.AnswerText,
-                AnswerDateAndTime = DateTime.Now,
-                UserId = newAnswerDto.UserID,
-                QuestionId = newAnswerDto.QuestionID
-            };
+            var answerEntity = _mapper.Map<Answer>(newAnswerDto);
+            answerEntity.AnswerDateAndTime = DateTime.Now;
 
             _context.Answers.Add(answerEntity);
             _context.SaveChanges();

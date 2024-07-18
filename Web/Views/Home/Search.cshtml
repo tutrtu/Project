@@ -1,0 +1,21 @@
+﻿@model List<Web.Models.QuestionViewModel>
+
+@{
+    ViewBag.Title = "Search";
+}
+
+<div class="row">
+    <div class="col-sm-12">
+        <h3>Search results for @ViewBag.str</h3>
+        <table class="table">
+            @foreach (var item in Model)
+            {
+                Html.RenderPartial("Question", item);
+            }
+        </table>
+    </div>
+</div>
+<script>
+
+</script>
+

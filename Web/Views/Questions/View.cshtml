@@ -1,7 +1,121 @@
-﻿
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@model Web.Models.QuestionViewModel
+
 @{
-    ViewData["Title"] = "View";
+    ViewBag.Title = "View Question";
 }
 
-<h1>View</h1>
+<div class="form-group form-row">
+    <div class="col-sm-10 offset-sm-2">
+        <h3>@Model.QuestionName</h3>
+        <div class="row">
+            <div class="col-sm-2">
+                <span class="badge badge-info">@Model.Category.CategoryName</span>
+            </div>
+            <div class="col-sm-2">
+                <span class="text-info">
+                    @if (Model.User == null || Model.User.Name == null)
+                    {
+                        <span>No user name</span>
+                    }
+                    else
+                    {
+                        @:by @Model.User.Name
+                    }
+                </span>
+            </div>
+            <div class="col-sm-3">
+                <span class="text-success">on @Model.QuestionDateAndTime</span>
+            </div>
+        </div>
 
+        @for (int i = 0; i < Model.Answers.Count; i++)
+        {
+            <div class="row">
+                <div class="col-sm-7">
+                    @if (HttpContextAccessor.HttpContext.Session.GetInt32("CurrentUserId") != Model.Answers[i].UserID)
+                    {
+                        <p>@Model.Answers[i].AnswerText</p>
+                    }
+                    else
+                    {
+                        <p class="answer">@Model.Answers[i].AnswerText</p>
+                        <button class="btn btn-info editbutton">Edit</button>
+
+                        <form class="needs-validation hidden" action="/questions/editanswer" method="post" id="editForm">
+                            <div class="form-group form-row">
+                                <div class="col-sm-12">
+                                    <h4>Edit your answer</h4>
+
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="AnswerID" value="@Model.Answers[i].AnswerID" />
+                                    <input type="hidden" name="QuestionID" value="@Model.Answers[i].QuestionID" />
+                                    <div class="form-row">
+                                        <div class="form-group col-sm-12">
+                                            <textarea class="form-control" id="txtAnswer" placeholder="Enter answer" name="AnswerText" required="required">@Model.Answers[i].AnswerText</textarea>
+                                            <div class="valid-feedback">
+                                                Looks good!
+                                            </div>
+                                            <div class="invalid-feedback">
+                                                Please enter an answer.
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary" data-formid="editForm">Update Answer</button>
+                                    <div class="text-danger">
+                                        <!-- Error messages will be displayed here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    }
+                </div>
+
+                <div class="col-sm-1">
+                    @if (HttpContextAccessor.HttpContext.Session.GetInt32("CurrentUserId") != Model.Answers[i].UserID)
+                    {
+                        @:by @Model.Answers[i].User.Name
+                    }
+                    else
+                    {
+                        @:by you
+                    }
+                </div>
+                <div class="col-sm-2">
+                    on @Model.Answers[i].AnswerDateAndTime
+                </div>
+            </div>
+        }
+        @if (HttpContextAccessor.HttpContext.Session.GetInt32("CurrentUserId") != null)
+        {
+            <form class="needs-validation" novalidate="novalidate" action="/questions/addanswer" method="post" id="newForm">
+                <div class="form-group form-row">
+                    <div class="col-sm-12">
+                        <h4>Add your answer</h4>
+
+                        @* <input type="hidden" name="UserID" value="@HttpContextAccessor.HttpContext.Session.GetInt32("CurrentUserId")" /> *@
+                        <input type="hidden" name="QuestionID" value="@Model.QuestionID" />
+                        <div class="form-row">
+                            <div class="form-group col-sm-12">
+                                <textarea class="form-control" id="txtAnswer" placeholder="Enter answer" name="AnswerText" required="required" data-pattern="[A-z0-9 ,-]{1,}"></textarea>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                                <div class="invalid-feedback">
+                                    Please enter answer.
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" data-formid="newForm">Add Answer</button>
+                        <div class="text-danger">
+                            @Html.ValidationSummary()
+                        </div>
+                    </div>
+                </div>
+            </form>
+        }
+    </div>
+</div>

@@ -25,7 +25,7 @@
             <div class="form-row">
                 <div class="form-group col-sm-6">
                     <label for="drpCategory">Category</label>
-                    <<select id="categoryID" name="categoryID">
+                    @* <<select id="categoryID" name="categoryID">
                         @if (ViewBag.Categories != null)
                         {
                             foreach (var category in ViewBag.Categories)
@@ -33,7 +33,9 @@
                                 <option value="@category.CategoryID">@category.CategoryName</option>
                             }
                         }
-                    </select>
+                    </select> *@
+                    @Html.DropDownList("CategoryID", ViewBag.Categories as List<SelectListItem>, "Select a Category", new { @class = "form-control" })
+
                 
                     
                     

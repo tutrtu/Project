@@ -7,5 +7,7 @@ public class MappingProfile : Profile
     {
         CreateMap<NewQuestionDto, Question>()
             .ForMember(dest => dest.QuestionDateAndTime, opt => opt.MapFrom(src => DateTime.Now));
+        CreateMap<NewAnswerDto, Answer>()
+             .ForMember(dest => dest.AnswerDateAndTime, opt => opt.MapFrom(src => DateTime.Now));
     }
 }

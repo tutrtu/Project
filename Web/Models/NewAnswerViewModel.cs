@@ -16,7 +16,6 @@ namespace Web.Models
         [Required]
         public int QuestionID { get; set; }
 
-        [Required]
-        public int VotesCount { get; set; }
+
     }
 }

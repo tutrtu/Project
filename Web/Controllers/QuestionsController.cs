@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -15,9 +16,24 @@ namespace Web.Controllers
         {
             _clientFactory = clientFactory;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> View(int id)
         {
-            return View();
+            var client = _clientFactory.CreateClient();
+
+            // Correctly format the URL to include the id
+            string apiUrl = $"http://localhost:5228/api/Questions/{id}";
+
+            // Call the API to get a single question
+            var qvm = await client.GetFromJsonAsync<QuestionViewModel>(apiUrl);
+
+            // Check if the question is found
+            if (qvm == null)
+            {
+                return NotFound(); // Or handle the case where the question is not found
+            }
+
+            // Return the view with the question view model
+            return View(qvm);
         }
 
         [HttpPost]
@@ -25,21 +41,40 @@ namespace Web.Controllers
         {
             try
             {
-                if (HttpContext.Session.GetInt32("CurrentUserId") == null)
+                // Check if the user is logged in
+                int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+                if (userId == null)
                 {
                     return RedirectToAction("Index", "Home");
                 }
 
-                questionViewModel.UserID = HttpContext.Session.GetInt32("CurrentUserId").Value;
+                // Set the User ID and current date/time
+                questionViewModel.UserID = userId.Value;
                 questionViewModel.QuestionDateAndTime = DateTime.Now;
 
-                var json = JsonSerializer.Serialize(questionViewModel);
+                // Fetch categories from API
                 var client = _clientFactory.CreateClient();
+                var categories = await client.GetFromJsonAsync<List<CategoryDto>>("http://localhost:5228/api/Categories");
+
+                if (categories == null)
+                {
+                    ViewBag.ErrorMessage = "Failed to fetch categories.";
+                    return View(questionViewModel);
+                }
+
+                // Prepare the categories for the view
+                ViewBag.Categories = categories.Select(c => new SelectListItem
+                {
+                    Value = c.CategoryID.ToString(),
+                    Text = c.CategoryName
+                }).ToList();
+
+                // Post the question to the API
                 var response = await client.PostAsJsonAsync("http://localhost:5228/api/Questions", questionViewModel);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    return RedirectToAction("Create");
+                    return RedirectToAction("Index", "Home");
                 }
                 else
                 {
@@ -62,9 +97,13 @@ namespace Web.Controllers
 
                 if (categories != null)
                 {
-                    // Map categories to SelectListItem for the dropdown
-                   
-                     ViewBag.Categories = categories ; // Ensure ViewBag.Categories is not null
+                    var selectListItems = categories.Select(c => new SelectListItem
+                    {
+                        Value = c.CategoryID.ToString(),
+                        Text = c.CategoryName
+                    }).ToList();
+
+                    ViewBag.Categories = selectListItems;
                     return View();
                 }
                 else
@@ -82,6 +121,31 @@ namespace Web.Controllers
             }
         }
 
-
+        [HttpPost]
+        public async Task<ActionResult> AddAnswer(NewAnswerViewModel navm)
+        {
+            //currrent working user id
+            navm.UserID = HttpContext.Session.GetInt32("CurrentUserId").Value;
+            
+            //taking system date and time
+            navm.AnswerDateAndTime = DateTime.Now;
+            //by default vote count is 0
+            
+            //checking model state is valid or not
+            if (ModelState.IsValid)
+            {
+                var client = _clientFactory.CreateClient();
+                var response = await client.PostAsJsonAsync("http://localhost:5228/api/Answers", navm);
+                //after adding answer we are redirecting to questions controller view page
+                return RedirectToAction("View", "Questions", new { id = navm.QuestionID });
+            }
+            else
+            {
+                ModelState.AddModelError("x", "Invalid Data");
+                //
+               
+                return View("View", navm);
+            }
+        }
     }
 }

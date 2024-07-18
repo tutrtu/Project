@@ -36,11 +36,12 @@ namespace Web.Controllers
             if (response.IsSuccessStatusCode)
             {
                 var userJson = await response.Content.ReadAsStringAsync();
-                var user = JsonConvert.DeserializeObject<User>(userJson);
+                User user = JsonConvert.DeserializeObject<User>(userJson);
 
+                int id = user.UserId;
                 // Set session variable
-                HttpContext.Session.SetInt32("CurrentUserId", user.Id);
-                
+                HttpContext.Session.SetInt32("CurrentUserId", user.UserId);  ///////
+                Console.WriteLine($"Set CurrentUserId in session: {user.UserId}");  // Red text
 
                 // Handle successful login, e.g., set session data or cookies
                 return RedirectToAction("Index", "Home");
@@ -81,7 +82,7 @@ namespace Web.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                HttpContext.Session.SetInt32("CurrentUserId", user.Id);
+                HttpContext.Session.SetInt32("CurrentUserId", user.UserId);
                 HttpContext.Session.SetString("CurrentUser", user.Name);
                 return RedirectToAction("Index", "Home");
             }

@@ -37,7 +37,7 @@ namespace API.Controllers
             {
                 return BadRequest();
             }
-            var ques = _context.Questions.FirstOrDefault(u => u.QuestionId == id);
+            var ques = _context.Questions.Include(u => u.User).Include(c => c.Category).Include(a => a.Answers).FirstOrDefault(u => u.QuestionId == id);
             if (ques == null)
             {
                 return NotFound();
@@ -78,7 +78,7 @@ namespace API.Controllers
         [HttpGet("{name}")]
         public ActionResult<IEnumerable<Question>> GetQuestionsByName(string name)
         {
-            var questions = _context.Questions
+            var questions = _context.Questions.Include(u => u.User).Include(c => c.Category).Include(a => a.Answers)
                 .Where(q => q.QuestionName.ToLower().Replace(" ", "")
                 .Contains(name.ToLower().Replace(" ", "")))
                 .ToList();
