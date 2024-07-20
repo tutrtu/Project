@@ -40,7 +40,8 @@ namespace Web.Controllers
 
                 int id = user.UserId;
                 // Set session variable
-                HttpContext.Session.SetInt32("CurrentUserId", user.UserId);  ///////
+                HttpContext.Session.SetInt32("CurrentUserId", user.UserId);
+                HttpContext.Session.SetInt32("CurrentUserRole", user.IsAdmin ? 1 : 0);
                 Console.WriteLine($"Set CurrentUserId in session: {user.UserId}");  // Red text
 
                 // Handle successful login, e.g., set session data or cookies
@@ -83,7 +84,7 @@ namespace Web.Controllers
             if (response.IsSuccessStatusCode)
             {
                 HttpContext.Session.SetInt32("CurrentUserId", user.UserId);
-                HttpContext.Session.SetString("CurrentUser", user.Name);
+                
                 return RedirectToAction("Index", "Home");
             }
             else

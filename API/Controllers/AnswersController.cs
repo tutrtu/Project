@@ -68,11 +68,8 @@ namespace API.Controllers
                 return NotFound();
             }
 
-            // Manually update the properties
-            answerEntity.AnswerText = avm.AnswerText;
-            answerEntity.AnswerDateAndTime = avm.AnswerDateAndTime;
-            answerEntity.UserId = avm.UserID;
-            answerEntity.QuestionId = avm.QuestionID;
+            // Use AutoMapper to map the DTO to the entity
+            _mapper.Map(avm, answerEntity);
 
             _context.SaveChanges();
 

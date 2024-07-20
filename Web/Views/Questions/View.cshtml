@@ -32,43 +32,42 @@
 
         @for (int i = 0; i < Model.Answers.Count; i++)
         {
-            <div class="row">
+            <div class="row mb-2">
                 <div class="col-sm-7">
                     @if (HttpContextAccessor.HttpContext.Session.GetInt32("CurrentUserId") != Model.Answers[i].UserID)
                     {
-                        <p>@Model.Answers[i].AnswerText</p>
+                        <p id="answerText-@i">@Model.Answers[i].AnswerText</p>
                     }
                     else
                     {
-                        <p class="answer">@Model.Answers[i].AnswerText</p>
-                        <button class="btn btn-info editbutton">Edit</button>
+                        <p id="answerText-@i" class="answer">@Model.Answers[i].AnswerText</p>
+                        <button type="button" class="btn btn-warning edit-button" data-index="@i">Edit Answer</button>
 
-                        <form class="needs-validation hidden" action="/questions/editanswer" method="post" id="editForm">
+                        <form class="needs-validation edit-form" novalidate="novalidate" action="/questions/editanswer" method="post" id="editForm-@i" style="display:none;">
                             <div class="form-group form-row">
                                 <div class="col-sm-12">
                                     <h4>Edit your answer</h4>
-
-                                    @Html.AntiForgeryToken()
                                     <input type="hidden" name="AnswerID" value="@Model.Answers[i].AnswerID" />
                                     <input type="hidden" name="QuestionID" value="@Model.Answers[i].QuestionID" />
                                     <div class="form-row">
                                         <div class="form-group col-sm-12">
-                                            <textarea class="form-control" id="txtAnswer" placeholder="Enter answer" name="AnswerText" required="required">@Model.Answers[i].AnswerText</textarea>
-                                            <div class="valid-feedback">
-                                                Looks good!
-                                            </div>
-                                            <div class="invalid-feedback">
-                                                Please enter an answer.
-                                            </div>
+                                            <textarea class="form-control" id="txtAnswer-@i" placeholder="Enter answer" name="AnswerText" required="required">@Model.Answers[i].AnswerText</textarea>
+                                            <div class="valid-feedback">Looks good!</div>
+                                            <div class="invalid-feedback">Please enter an answer.</div>
                                         </div>
                                     </div>
-
-                                    <button type="submit" class="btn btn-primary" data-formid="editForm">Update Answer</button>
+                                    <button type="submit" class="btn btn-primary" data-formid="editForm-@i">Update Answer</button>
                                     <div class="text-danger">
-                                        <!-- Error messages will be displayed here -->
+                                        @Html.ValidationSummary()
                                     </div>
                                 </div>
                             </div>
+                        </form>
+
+                        <form action="/questions/deleteanswer" method="post" class="d-inline-block">
+                            <input type="hidden" name="AnswerID" value="@Model.Answers[i].AnswerID" />
+                            <input type="hidden" name="QuestionID" value="@Model.Answers[i].QuestionID" />
+                            <button type="submit" class="btn btn-danger">Delete Answer</button>
                         </form>
                     }
                 </div>
@@ -76,39 +75,41 @@
                 <div class="col-sm-1">
                     @if (HttpContextAccessor.HttpContext.Session.GetInt32("CurrentUserId") != Model.Answers[i].UserID)
                     {
-                        @:by @Model.Answers[i].User.Name
+                        if (Model.Answers[i].User == null || Model.Answers[i].User.Name == null)
+                        {
+                            @: by No One
+                        }
+                        else
+                        {
+                            @: by @Model.Answers[i].User.Name
+                        }
                     }
                     else
                     {
-                        @:by you
+                        @: by you
                     }
                 </div>
+
                 <div class="col-sm-2">
                     on @Model.Answers[i].AnswerDateAndTime
                 </div>
             </div>
         }
+
         @if (HttpContextAccessor.HttpContext.Session.GetInt32("CurrentUserId") != null)
         {
             <form class="needs-validation" novalidate="novalidate" action="/questions/addanswer" method="post" id="newForm">
                 <div class="form-group form-row">
                     <div class="col-sm-12">
                         <h4>Add your answer</h4>
-
-                        @* <input type="hidden" name="UserID" value="@HttpContextAccessor.HttpContext.Session.GetInt32("CurrentUserId")" /> *@
                         <input type="hidden" name="QuestionID" value="@Model.QuestionID" />
                         <div class="form-row">
                             <div class="form-group col-sm-12">
                                 <textarea class="form-control" id="txtAnswer" placeholder="Enter answer" name="AnswerText" required="required" data-pattern="[A-z0-9 ,-]{1,}"></textarea>
-                                <div class="valid-feedback">
-                                    Looks good!
-                                </div>
-                                <div class="invalid-feedback">
-                                    Please enter answer.
-                                </div>
+                                <div class="valid-feedback">Looks good!</div>
+                                <div class="invalid-feedback">Please enter an answer.</div>
                             </div>
                         </div>
-
                         <button type="submit" class="btn btn-primary" data-formid="newForm">Add Answer</button>
                         <div class="text-danger">
                             @Html.ValidationSummary()
@@ -119,3 +120,16 @@
         }
     </div>
 </div>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script>
+        $(document).ready(function () {
+            $(".edit-button").click(function () {
+                var index = $(this).data("index");
+                $("#answerText-" + index).toggle();
+                $("#editForm-" + index).toggle();
+            });
+        });
+    </script>
+}

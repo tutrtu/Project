@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace API.Models
+namespace Web.Models
 {
-    public class EditAnswerDto
+    public class EditAnswerViewModel
     {
         [Required]
         public int AnswerID { get; set; }
@@ -19,7 +19,8 @@ namespace API.Models
         [Required]
         public int QuestionID { get; set; }
 
+        
 
-        /*public virtual Question Question { get; set; }*/
+        public virtual QuestionViewModel Question { get; set; }
     }
 }

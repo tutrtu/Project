@@ -126,11 +126,11 @@ namespace Web.Controllers
         {
             //currrent working user id
             navm.UserID = HttpContext.Session.GetInt32("CurrentUserId").Value;
-            
+
             //taking system date and time
             navm.AnswerDateAndTime = DateTime.Now;
             //by default vote count is 0
-            
+
             //checking model state is valid or not
             if (ModelState.IsValid)
             {
@@ -143,9 +143,50 @@ namespace Web.Controllers
             {
                 ModelState.AddModelError("x", "Invalid Data");
                 //
-               
+
                 return View("View", navm);
             }
         }
+
+
+        [HttpPost]
+        public async Task<ActionResult> editanswer(EditAnswerViewModel avm)
+        {
+
+            avm.UserID = HttpContext.Session.GetInt32("CurrentUserId").Value;
+
+            var client = _clientFactory.CreateClient();
+            var response = await client.PutAsJsonAsync("http://localhost:5228/api/Answers", avm);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return RedirectToAction("View", new { id = avm.QuestionID });
+            }
+            else
+            {
+                ModelState.AddModelError("x", "Error updating answer");
+                return RedirectToAction("View", new { id = avm.QuestionID });
+            }
+
+
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> DeleteAnswer(int answerId, int questionId)
+        {
+            var client = _clientFactory.CreateClient();
+            var response = await client.DeleteAsync($"http://localhost:5228/api/Answers/{answerId}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                return RedirectToAction("view", new { id = questionId });
+            }
+            else
+            {
+                ModelState.AddModelError("x", "Error deleting answer");
+                return RedirectToAction("view", new { id = questionId });
+            }
+        }
+
     }
 }

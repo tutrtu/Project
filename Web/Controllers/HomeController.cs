@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Diagnostics;
 using Web.Models;
 using static System.Net.WebRequestMethods;
@@ -67,6 +68,52 @@ namespace Web.Controllers
                 return RedirectToAction("Error");
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateCategory(CategoryDto category)
+        {
+            try
+            {
+                // Check if the user is logged in
+                int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+                if (userId == null)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+
+                // Set the User ID and current date/time
+                
+                category.CategoryID = 1;
+
+                // Fetch categories from API
+                var client = _clientFactory.CreateClient();
+              
+
+               
+
+                // Prepare the categories for the view
+              
+
+                // Post the question to the API
+                var response = await client.PostAsJsonAsync("http://localhost:5228/api/Categories", category);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("Categories", "Home");
+                }
+                else
+                {
+                    ViewBag.ErrorMessage = "Failed to create question.";
+                    return View(category);
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = $"Error: {ex.Message}";
+                return View(category);
+            }
+        }
+
 
         public async Task<IActionResult> Search(string str)
         {
